@@ -1,0 +1,30 @@
+# --- Backend / Analysis ---
+pandas>=2.2
+numpy>=1.26
+python-dateutil>=2.9
+
+# --- Visualization ---
+plotly>=5.22
+matplotlib>=3.9
+networkx>=3.3
+
+# --- Dashboard ---
+streamlit>=1.36
+
+# --- Geospatial (optional module) ---
+geopandas>=0.14
+pycountry>=23.12
+
+# --- ML (optional prediction module) ---
+scikit-learn>=1.5
+prophet>=1.1
+
+# --- Data acquisition ---
+kaggle>=1.6
+
+# --- Dev / QA ---
+jupyter>=1.0
+ipykernel>=6.29
+pytest>=8.2
+black>=24.4
+python-dotenv>=1.0
