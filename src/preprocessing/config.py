@@ -25,7 +25,7 @@ DATASETS = {
     "cfr_incidents": {
         "description": "Cyber Incidents 2005-2020 (Council on Foreign Relations)",
         "kaggle_slug": "fireballbyedimyrnmom/cyber-incidents-up-to-2020",
-        "raw_filename": "cfr_cyber_incidents.csv",
+        "raw_filename": "cyber-operations-incidents.csv",
         "source": "kaggle",
     },
     "vulnerabilities": {
@@ -37,7 +37,14 @@ DATASETS = {
     "attack_signatures": {
         "description": "Cyber Security Attacks (~40k records, 25 metrics)",
         "kaggle_slug": "teamincribo/cyber-security-attacks",
-        "raw_filename": "cyber_security_attacks.csv",
+        "raw_filename": "cybersecurity_attacks.csv",
         "source": "kaggle",
+    },
+    "malmem_2022": {
+        "description": "CIC-MalMem-2022 malware memory dataset",
+        "kaggle_slug": None,
+        "raw_filename": "cic_malmem_2022.csv",
+        "source": "manual",
+        "manual_url": "https://www.unb.ca/cic/datasets/malmem-2022.html",
     },
 }
