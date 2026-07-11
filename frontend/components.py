@@ -227,9 +227,10 @@ def render_threat_network(global_threats_df: pd.DataFrame) -> go.Figure:
     
     # 1. Add nodes and edges
     for _, row in sample_df.iterrows():
-        actor = row.get("attack_source", "Unknown")
-        country = row.get("standard_country", row.get("country", "Unknown"))
-        industry = row.get("target_industry", "Unknown")
+        row_dict = row.to_dict()
+        actor = row_dict.get("attack_source", "Unknown")
+        country = row_dict.get("standard_country", row_dict.get("country", "Unknown"))
+        industry = row_dict.get("target_industry", "Unknown")
         
         # Color coding designations
         G.add_node(actor, type="Actor", color=COLOR_PALETTE["neon_pink"])

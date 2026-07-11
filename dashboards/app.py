@@ -193,6 +193,15 @@ st.sidebar.download_button(
     help="Export chronological timeline details."
 )
 
+st.sidebar.markdown("---")
+st.sidebar.subheader("🗃️ GitHub Dataset Registry")
+st.sidebar.markdown(f"""
+*   **Global Threat Logs:** `{len(threats_df):,} rows`
+*   **CFR Incidents Catalog:** `{len(temporal_df):,} rows`
+*   **Vulnerability Registry:** `{len(vulnerabilities_df):,} rows`
+*   **Malware Forensic Dumps:** `{len(malmem_df):,} rows`
+""")
+
 if not threats_df.empty:
     selected_countries = st.sidebar.multiselect(
         "Filter by Country",
@@ -250,12 +259,13 @@ with kpi4:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Tabs Navigation
-tab_map, tab_trends, tab_industry, tab_vuln, tab_malware, tab_network = st.tabs([
+tab_map, tab_trends, tab_industry, tab_vuln, tab_malware, tab_resolution, tab_network = st.tabs([
     "🗺️ Country Threat Map", 
-    "📈 Global Trend Analysis", 
+    "📈 Global Threat Trends", 
     "🏢 Industry Risk Dashboard",
-    "🛡️ Vulnerability Explorer",
+    "🔓 Vulnerability Explorer",
     "🦠 Malware Family Analytics",
+    "⚔️ Attack Source & Resolution",
     "🕸️ Threat Relationship Network"
 ])
 
@@ -419,41 +429,13 @@ with tab_trends:
             fig_loss.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_loss, use_container_width=True)
 
-        st.markdown("---")
-        st.subheader("Incident Resolution vs. Severity Analysis")
-        
-        if not filtered_threats_df.empty:
-            col_s1, col_s2 = st.columns([2, 1])
-            with col_s1:
-                # Scatter plot of Resolution Time vs Severity
-                fig_scatter = px.box(
-                    filtered_threats_df,
-                    x="defense_mechanism_used" if "defense_mechanism_used" in filtered_threats_df.columns else None,
-                    y="incident_resolution_time_in_hours",
-                    color="attack_type",
-                    points="all",
-                    labels={
-                        "defense_mechanism_used": "Defense Mechanism",
-                        "incident_resolution_time_in_hours": "Resolution Time (Hours)",
-                        "attack_type": "Attack Type"
-                    },
-                    title="Resolution Efficiency by Defense Strategy and Threat Vector"
-                )
-                fig_scatter.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
-                st.plotly_chart(fig_scatter, use_container_width=True)
-            with col_s2:
-                # Attack Source Breakdown
-                st.subheader("Attack Source Attribution")
-                source_counts = filtered_threats_df["attack_source"].value_counts().reset_index()
-                fig_source = px.pie(
-                    source_counts,
-                    names="attack_source",
-                    values="count",
-                    hole=0.4,
-                    color_discrete_sequence=[COLOR_PALETTE["primary"], COLOR_PALETTE["secondary"], COLOR_PALETTE["accent"]]
-                )
-                fig_source.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
-                st.plotly_chart(fig_source, use_container_width=True)
+            st.plotly_chart(fig_loss, use_container_width=True)
+
+        with st.expander("💡 Threat Trend Insights"):
+            st.markdown("""
+            *   **Timeline Distribution:** Visualizes the chronological rise of security incidents globally. Spikes correlate with major geopolitical events or global malware outbreaks.
+            *   **Forecasting Line:** Dashed forecast trace projects the threat trend 3 years into the future using linear regression based on historic averages.
+            """)
     else:
         st.warning("Temporal integrated data is missing.")
 
@@ -631,7 +613,55 @@ with tab_malware:
     else:
         st.warning("Malware memory dataset is missing.")
 
-# ----------------- Tab 6: Threat Relationship Network (Task 4.7) -----------------
+# ----------------- Tab 6: Attack Source and Resolution-Time Analysis (Task 4.6) -----------------
+with tab_resolution:
+    st.header("Attack Source & Resolution-Time Analysis")
+    st.markdown("""
+    This section explores the attribution of cyber threats (hackers, nation-states, insiders) and correlates them with operational resolution efficiency.
+    """)
+
+    if not threats_df.empty:
+        col_s1, col_s2 = st.columns([2, 1])
+        
+        with col_s1:
+            st.subheader("Incident Resolution vs. Defense Strategy")
+            fig_scatter = px.box(
+                threats_df,
+                x="defense_mechanism_used" if "defense_mechanism_used" in threats_df.columns else None,
+                y="incident_resolution_time_in_hours",
+                color="attack_type",
+                points="all",
+                labels={
+                    "defense_mechanism_used": "Defense Strategy",
+                    "incident_resolution_time_in_hours": "Resolution Time (Hours)",
+                    "attack_type": "Attack Vector"
+                }
+            )
+            fig_scatter.update_layout(**PLOTLY_THEME_LAYOUT, height=400, margin={"t": 30, "b": 30, "l": 30, "r": 30})
+            st.plotly_chart(fig_scatter, use_container_width=True)
+            
+        with col_s2:
+            st.subheader("Threat Actor Attribution")
+            source_counts = threats_df["attack_source"].value_counts().reset_index()
+            fig_source = px.pie(
+                source_counts,
+                names="attack_source",
+                values="count",
+                hole=0.4,
+                color_discrete_sequence=[COLOR_PALETTE["primary"], COLOR_PALETTE["secondary"], COLOR_PALETTE["accent"]]
+            )
+            fig_source.update_layout(**PLOTLY_THEME_LAYOUT, height=400, margin={"t": 30, "b": 30, "l": 30, "r": 30})
+            st.plotly_chart(fig_source, use_container_width=True)
+            
+        with st.expander("💡 Intrusion Forensics Insights"):
+            st.markdown(f"""
+            *   **Resolution Times:** Resolution times indicate how different defense mechanisms (e.g. firewalls, AI-detection) impact incident lifecycle lengths across threat types.
+            *   **Attribution share:** Nation-state groups and advanced insider threats typically represent distinct risk profiles in financial damage per security event.
+            """)
+    else:
+        st.warning("Global threats dataset is missing.")
+
+# ----------------- Tab 7: Threat Relationship Network (Task 4.7) -----------------
 with tab_network:
     st.header("Threat Actor & Sector Relationship Network")
     st.markdown("""
