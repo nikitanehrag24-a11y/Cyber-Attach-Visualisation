@@ -29,12 +29,20 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
         return
         
     # 1. Calculate Industry Risk Scores
-    industry_risk = get_industry_risk_scores(global_df)
+    w_freq, w_loss, w_time = filters.get("weights", (0.3, 0.4, 0.3))
+    industry_risk = get_industry_risk_scores(global_df, w_freq, w_loss, w_time)
     
     # 2. Render Treemap
     st.subheader("Industry Financial Loss Distribution")
     fig_tree = render_industry_treemap(industry_risk)
     st.plotly_chart(fig_tree, use_container_width=True)
+    
+    with st.expander("💡 Sector Risk & Loss Insights"):
+        st.markdown(f"""
+        *   **Treemap Hierarchy:** The size of each sector represents the **Total Financial Loss ($M)** incurred, while the color shade represents the **Average Loss per Incident**.
+        *   **Critical Sectors:** Sectors like Healthcare and Finance typically show large dimensions due to substantial breach response costs (e.g. data restoration and regulatory penalties).
+        *   **Weight Calibrator:** Changing your sidebar weights (Frequency: {w_freq:.0%}, Loss: {w_loss:.0%}, Operational: {w_time:.0%}) shifts the Risk Index values in the leaderboard below in real-time.
+        """)
     
     # 3. Two columns for Industry Heatmap & Detail List
     col1, col2 = st.columns([1, 1])

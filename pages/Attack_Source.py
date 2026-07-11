@@ -67,3 +67,9 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
             )
             fig_pie.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 40, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_pie, use_container_width=True)
+            
+    with st.expander("💡 Intrusion Forensics Insights"):
+        st.markdown(f"""
+        *   **Anomaly Scores vs Packet Length:** High anomaly scores paired with large packet sizes typically indicate payload-based exploits (like SQL Injection or Buffer Overflow attacks) or data exfiltration.
+        *   **Protocol Distribution:** Compares the usage of standard network layers (TCP, UDP, ICMP) in intrusion logs.
+        """)

@@ -102,6 +102,42 @@ def render_sidebar(
         help="Search titles, CVE summaries, and description fields."
     )
     
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("⚙️ Risk Index Calibration")
+    w_freq = st.sidebar.slider(
+        label="Frequency Weight",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.3,
+        step=0.05,
+        help="Weights the threat occurrence count."
+    )
+    w_loss = st.sidebar.slider(
+        label="Financial Impact Weight",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.4,
+        step=0.05,
+        help="Weights average financial loss ($M)."
+    )
+    w_time = st.sidebar.slider(
+        label="Resolution Time Weight",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.3,
+        step=0.05,
+        help="Weights average incident resolution hours."
+    )
+    
+    # Normalize weights
+    total_w = w_freq + w_loss + w_time
+    if total_w > 0:
+        w_freq_norm = w_freq / total_w
+        w_loss_norm = w_loss / total_w
+        w_time_norm = w_time / total_w
+    else:
+        w_freq_norm, w_loss_norm, w_time_norm = 0.3, 0.4, 0.3
+        
     # Return filter configuration dictionary
     return {
         "countries": selected_countries,
@@ -109,5 +145,6 @@ def render_sidebar(
         "attack_types": selected_attack_types,
         "industries": selected_industries,
         "severities": selected_severities,
-        "search_query": search_query
+        "search_query": search_query,
+        "weights": (w_freq_norm, w_loss_norm, w_time_norm)
     }

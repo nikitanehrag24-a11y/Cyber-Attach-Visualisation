@@ -9,9 +9,20 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import networkx as nx
+import json
+import urllib.request
 from typing import Dict, Any, List
 
 from frontend.layout import COLOR_PALETTE, PLOTLY_THEME_LAYOUT
+
+@st.cache_data
+def load_world_geojson():
+    url = "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson"
+    try:
+        with urllib.request.urlopen(url) as response:
+            return json.loads(response.read().decode())
+    except Exception:
+        return None
 
 def card_kpi(label: str, value: str, icon: str = "⚡"):
     """Renders a single glassmorphic card with a KPI metric."""
@@ -71,21 +82,42 @@ def render_risk_choropleth(country_risk_df: pd.DataFrame) -> go.Figure:
     df_map = country_risk_df.copy()
     df_map["iso_code"] = df_map["standard_country"].map(iso_alpha)
     
-    fig = px.choropleth(
-        df_map,
-        locations="iso_code",
-        color="risk_score",
-        hover_name="standard_country",
-        hover_data={"incident_count": True, "avg_loss": ":.2f", "avg_resolution_time": ":.1f", "risk_score": ":.2f"},
-        color_continuous_scale=[
-            [0.0, "rgba(0, 242, 254, 0.2)"],
-            [0.5, "rgba(79, 172, 254, 0.6)"],
-            [0.8, "rgba(127, 0, 255, 0.85)"],
-            [1.0, COLOR_PALETTE["neon_pink"]]
-        ],
-        labels={"risk_score": "Risk Index"},
-        title="Global Security Risk Map (Scale 0-10)"
-    )
+    geojson_data = load_world_geojson()
+    
+    if geojson_data:
+        fig = px.choropleth(
+            df_map,
+            geojson=geojson_data,
+            locations="iso_code",
+            featureidkey="properties.ISO3166-1-Alpha-3",
+            color="risk_score",
+            hover_name="standard_country",
+            hover_data={"incident_count": True, "avg_loss": ":.2f", "avg_resolution_time": ":.1f", "risk_score": ":.2f"},
+            color_continuous_scale=[
+                [0.0, "rgba(0, 242, 254, 0.2)"],
+                [0.5, "rgba(79, 172, 254, 0.6)"],
+                [0.8, "rgba(127, 0, 255, 0.85)"],
+                [1.0, COLOR_PALETTE["neon_pink"]]
+            ],
+            labels={"risk_score": "Risk Index"},
+            title="Global Security Risk Map (Scale 0-10)"
+        )
+    else:
+        fig = px.choropleth(
+            df_map,
+            locations="iso_code",
+            color="risk_score",
+            hover_name="standard_country",
+            hover_data={"incident_count": True, "avg_loss": ":.2f", "avg_resolution_time": ":.1f", "risk_score": ":.2f"},
+            color_continuous_scale=[
+                [0.0, "rgba(0, 242, 254, 0.2)"],
+                [0.5, "rgba(79, 172, 254, 0.6)"],
+                [0.8, "rgba(127, 0, 255, 0.85)"],
+                [1.0, COLOR_PALETTE["neon_pink"]]
+            ],
+            labels={"risk_score": "Risk Index"},
+            title="Global Security Risk Map (Scale 0-10)"
+        )
     
     fig.update_layout(
         **PLOTLY_THEME_LAYOUT,

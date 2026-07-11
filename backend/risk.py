@@ -67,10 +67,20 @@ def calculate_normalized_scores(
     metrics["risk_score"] = np.round(weighted_score, 2)
     return metrics.sort_values(by="risk_score", ascending=False)
 
-def get_country_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
+def get_country_risk_scores(
+    df: pd.DataFrame,
+    w_count: float = 0.3,
+    w_loss: float = 0.4,
+    w_time: float = 0.3
+) -> pd.DataFrame:
     """Calculates risk scores for each country."""
-    return calculate_normalized_scores(df, "standard_country")
+    return calculate_normalized_scores(df, "standard_country", w_count, w_loss, w_time)
 
-def get_industry_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
+def get_industry_risk_scores(
+    df: pd.DataFrame,
+    w_count: float = 0.3,
+    w_loss: float = 0.4,
+    w_time: float = 0.3
+) -> pd.DataFrame:
     """Calculates risk scores for each industry."""
-    return calculate_normalized_scores(df, "target_industry")
+    return calculate_normalized_scores(df, "target_industry", w_count, w_loss, w_time)

@@ -43,9 +43,19 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
     with left_col:
         st.subheader("Global Security Risk Preview")
         # Use full reference dataset for a nice map preview, or filtered if selected
-        risk_df = get_country_risk_scores(datasets["global_threats"])
+        w_freq, w_loss, w_time = filters.get("weights", (0.3, 0.4, 0.3))
+        risk_df = get_country_risk_scores(datasets["global_threats"], w_freq, w_loss, w_time)
         fig_map = render_risk_choropleth(risk_df)
         st.plotly_chart(fig_map, use_container_width=True)
+        
+        with st.expander("💡 How to Read the Risk Score & Map"):
+            st.markdown(f"""
+            *   **Risk Index Formulation:** The Risk Score is a normalized scale from **0 to 10** computed dynamically based on three metrics weighted by your sidebar settings:
+                1.  **Incident Frequency** ({w_freq:.1%})
+                2.  **Average Financial Loss** ({w_loss:.1%})
+                3.  **Average Operational Resolution Time** ({w_time:.1%})
+            *   **Map Interpretation:** Darker colors represent higher risk levels. You can hover over any country to see its actual incident counts, financial impact, and resolution metrics. Adjust the sliders in the sidebar to calibrate the index!
+            """)
         
     with right_col:
         st.subheader("Integrated Data Catalogs")

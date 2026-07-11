@@ -29,11 +29,19 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
         return
         
     # 1. Calculate Country Risk Scores
-    risk_df = get_country_risk_scores(global_df)
+    w_freq, w_loss, w_time = filters.get("weights", (0.3, 0.4, 0.3))
+    risk_df = get_country_risk_scores(global_df, w_freq, w_loss, w_time)
     
     # 2. Render Choropleth Map
     fig_map = render_risk_choropleth(risk_df)
     st.plotly_chart(fig_map, use_container_width=True)
+    
+    with st.expander("💡 Global Security Risk Map Insights & Explanations"):
+        st.markdown(f"""
+        *   **Dynamic Calibration:** The risk leaderboard is recalculated in real-time based on the sidebar weights (Incident Frequency: {w_freq:.0%}, Financial Impact: {w_loss:.0%}, Operational Resolution: {w_time:.0%}).
+        *   **Geopolitics & Hotspots:** Industrial hubs like the USA, Germany, and Australia show elevated risk indexes due to higher incident reporting frequencies and significant economic damage per breach.
+        *   **Boundary & Mapping Note:** Geopolitical boundaries (including the complete boundaries of India incorporating Jammu & Kashmir) are mapped using standardized international high-resolution GeoJSON geometries to ensure correct territorial representation.
+        """)
     
     # 3. Two columns for Detail Table and Country Comparison
     col1, col2 = st.columns([3, 2])
