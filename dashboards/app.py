@@ -13,6 +13,15 @@ import plotly.graph_objects as go
 from pathlib import Path
 import json
 import urllib.request
+import sys
+
+# Setup base paths relative to dashboards/app.py
+ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT_DIR))
+
+# Import layout themes and visual network elements from frontend modules
+from frontend.layout import COLOR_PALETTE, PLOTLY_THEME_LAYOUT
+from frontend.components import render_threat_network
 
 @st.cache_data
 def load_world_geojson():
@@ -167,6 +176,23 @@ else:
 
 spatial_df = get_spatial_dynamic(threats_df, w_freq, w_loss, w_time)
 
+st.sidebar.markdown("---")
+st.sidebar.subheader("📥 Export Datasets")
+st.sidebar.download_button(
+    label="Download Spatial Risk Data (CSV)",
+    data=spatial_df.to_csv(index=False),
+    file_name="integrated_spatial.csv",
+    mime="text/csv",
+    help="Export geographic risk index and averages."
+)
+st.sidebar.download_button(
+    label="Download Temporal Trends Data (CSV)",
+    data=temporal_df.to_csv(index=False),
+    file_name="integrated_temporal.csv",
+    mime="text/csv",
+    help="Export chronological timeline details."
+)
+
 if not threats_df.empty:
     selected_countries = st.sidebar.multiselect(
         "Filter by Country",
@@ -224,12 +250,13 @@ with kpi4:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Tabs Navigation
-tab_map, tab_trends, tab_industry, tab_vuln, tab_malware = st.tabs([
+tab_map, tab_trends, tab_industry, tab_vuln, tab_malware, tab_network = st.tabs([
     "🗺️ Country Threat Map", 
     "📈 Global Trend Analysis", 
     "🏢 Industry Risk Dashboard",
     "🛡️ Vulnerability Explorer",
-    "🦠 Malware Family Analytics"
+    "🦠 Malware Family Analytics",
+    "🕸️ Threat Relationship Network"
 ])
 
 # ----------------- Tab 1: Country Threat Map (Task 4.2) -----------------
@@ -308,7 +335,7 @@ with tab_map:
                 color_continuous_scale=px.colors.sequential.Sunsetdark,
                 labels={"risk_score": "Risk Score", "country": "Country"}
             )
-            fig_rank.update_layout(yaxis={'categoryorder':'total ascending'}, showlegend=False)
+            fig_rank.update_layout(**PLOTLY_THEME_LAYOUT, yaxis={'categoryorder':'total ascending'}, showlegend=False, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_rank, use_container_width=True)
             
         with col2:
@@ -350,7 +377,34 @@ with tab_trends:
                 mode='lines+markers', name='CFR Historical (2005-2020)',
                 line=dict(color='#FF8F00', width=2, dash='dash')
             ))
-            fig_trends.update_layout(xaxis_title="Year", yaxis_title="Incident Count", legend=dict(x=0, y=1))
+            
+            # Predictive threat forecasting (Task 4.1 prediction extension)
+            import numpy as np
+            years = temporal_df["year"].values
+            global_incidents = temporal_df["global_incidents"].values
+            valid_mask = (years >= 2015) & (years <= 2023) & (global_incidents > 0)
+            X = years[valid_mask]
+            y = global_incidents[valid_mask]
+            
+            if len(X) > 2:
+                poly = np.polyfit(X, y, 1)
+                forecast_years = np.array([2023, 2024, 2025, 2026])
+                forecast_values = np.polyval(poly, forecast_years)
+                forecast_values = np.clip(forecast_values, 0, None)
+                
+                fig_trends.add_trace(go.Scatter(
+                    x=forecast_years, y=forecast_values,
+                    mode='lines+markers', name='Linear Forecast (2023-2026)',
+                    line=dict(color='#FF00FF', width=2, dash='dot')
+                ))
+                
+            fig_trends.update_layout(
+                **PLOTLY_THEME_LAYOUT,
+                xaxis_title="Year", 
+                yaxis_title="Incident Count",
+                margin={"t": 30, "b": 30, "l": 30, "r": 30},
+                height=350
+            )
             st.plotly_chart(fig_trends, use_container_width=True)
 
         with col_t2:
@@ -361,6 +415,7 @@ with tab_trends:
                 labels={"avg_financial_loss": "Average Financial Loss (Millions USD)", "year": "Year"},
                 color_discrete_sequence=['#9900FF']
             )
+            fig_loss.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_loss, use_container_width=True)
 
         st.markdown("---")
@@ -383,6 +438,7 @@ with tab_trends:
                     },
                     title="Resolution Efficiency by Defense Strategy and Threat Vector"
                 )
+                fig_scatter.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
                 st.plotly_chart(fig_scatter, use_container_width=True)
             with col_s2:
                 # Attack Source Breakdown
@@ -393,8 +449,9 @@ with tab_trends:
                     names="attack_source",
                     values="count",
                     hole=0.4,
-                    color_discrete_sequence=px.colors.qualitative.Pastel
+                    color_discrete_sequence=[COLOR_PALETTE["primary"], COLOR_PALETTE["secondary"], COLOR_PALETTE["accent"]]
                 )
+                fig_source.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
                 st.plotly_chart(fig_source, use_container_width=True)
     else:
         st.warning("Temporal integrated data is missing.")
@@ -413,9 +470,14 @@ with tab_industry:
                 path=["target_industry", "attack_type"],
                 values="financial_loss_in_million_",
                 color="financial_loss_in_million_",
-                color_continuous_scale="Viridis",
+                color_continuous_scale=[
+                    [0.0, "rgba(17, 25, 40, 0.6)"],
+                    [0.5, "rgba(79, 172, 254, 0.8)"],
+                    [1.0, COLOR_PALETTE["primary"]]
+                ],
                 labels={"financial_loss_in_million_": "Loss (M USD)"}
             )
+            fig_tree.update_layout(**PLOTLY_THEME_LAYOUT)
             st.plotly_chart(fig_tree, use_container_width=True)
 
         with col_ind2:
@@ -426,9 +488,17 @@ with tab_industry:
                 color="attack_type",
                 barmode="stack",
                 labels={"target_industry": "Industry Sector", "count": "Incidents"},
-                color_discrete_sequence=px.colors.qualitative.G10
+                color_discrete_sequence=[COLOR_PALETTE["primary"], COLOR_PALETTE["secondary"], COLOR_PALETTE["accent"], COLOR_PALETTE["neon_pink"]]
             )
+            fig_ind_bar.update_layout(**PLOTLY_THEME_LAYOUT)
             st.plotly_chart(fig_ind_bar, use_container_width=True)
+            
+        with st.expander("💡 Sector Risk & Loss Insights"):
+            st.markdown(f"""
+            *   **Treemap Hierarchy:** The size of each sector represents the **Total Financial Loss ($M)** incurred, while the color shade represents the **Average Loss per Incident**.
+            *   **Critical Sectors:** Sectors like Healthcare and Finance typically show large dimensions due to substantial breach response costs (e.g. data restoration and regulatory penalties).
+            *   **Weight Calibrator:** Changing your sidebar weights (Frequency: {w_freq:.0%}, Loss: {w_loss:.0%}, Operational: {w_time:.0%}) shifts the Risk Index values in the leaderboard in real-time.
+            """)
     else:
         st.warning("Global threats dataset is missing.")
 
@@ -450,6 +520,7 @@ with tab_vuln:
                 color_discrete_map={"Critical": "#EF4444", "High": "#F97316", "Medium": "#EAB308", "Low": "#10B981", "Unrated": "#6B7280"},
                 hole=0.4
             )
+            fig_sev.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_sev, use_container_width=True)
 
         with v_col2:
@@ -462,9 +533,16 @@ with tab_vuln:
                     y="count",
                     markers=True,
                     labels={"count": "CVE Disclosures", "year": "Year"},
-                    color_discrete_sequence=["#FF5555"]
+                    color_discrete_sequence=[COLOR_PALETTE["neon_pink"]]
                 )
+                fig_v_trend.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
                 st.plotly_chart(fig_v_trend, use_container_width=True)
+
+        with st.expander("💡 Vulnerability Density Insights"):
+            st.markdown(f"""
+            *   **Distribution Matrix:** Highlights the volume of software vulnerabilities published per year categorized by severity. Notice the proportion of Critical and High vulnerabilities.
+            *   **Registry Search:** Use the Keyword Search below to filter specific CVE titles or summaries dynamically.
+            """)
 
         st.subheader("Vulnerabilities Search Registry")
         search_q = st.text_input("Search vulnerabilities (title or summary)", placeholder="e.g. Remote Code Execution")
@@ -509,9 +587,10 @@ with tab_malware:
                 names="class",
                 values="count",
                 color="class",
-                color_discrete_map={"Benign": "#10B981", "Malicious": "#EF4444"},
+                color_discrete_map={"Benign": COLOR_PALETTE["neon_green"], "Malicious": COLOR_PALETTE["neon_pink"]},
                 hole=0.4
             )
+            fig_class.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_class, use_container_width=True)
 
         with m_col2:
@@ -525,8 +604,9 @@ with tab_malware:
                 y="category",
                 orientation='h',
                 color="category",
-                color_discrete_sequence=px.colors.qualitative.Bold
+                color_discrete_sequence=[COLOR_PALETTE["primary"], COLOR_PALETTE["secondary"], COLOR_PALETTE["accent"]]
             )
+            fig_cat.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_cat, use_container_width=True)
 
         st.subheader("Specific Malware Family Breakdown")
@@ -536,9 +616,37 @@ with tab_malware:
             x="family",
             y="count",
             color="family",
-            color_discrete_sequence=px.colors.qualitative.Prism,
-            labels={"count": "Samples Checked", "family": "Malware Family"}
+            color_discrete_sequence=[COLOR_PALETTE["primary"], COLOR_PALETTE["secondary"], COLOR_PALETTE["accent"], COLOR_PALETTE["neon_green"]]
         )
+        fig_fam.update_layout(**PLOTLY_THEME_LAYOUT, height=400, margin={"t": 30, "b": 30, "l": 30, "r": 30})
         st.plotly_chart(fig_fam, use_container_width=True)
+
+        with st.expander("💡 Malware Forensics Analysis Insights"):
+            st.markdown(f"""
+            *   **Class Balance:** The pie chart represents the ratio of Benign (normal memory signatures) to Malicious samples loaded in the forensics model.
+            *   **Category Analysis:** Identifies memory evasion families (Trojans, Spyware, Ransomware) showing their prevalence in infected operating systems.
+            *   **Family breakdown:** Highlights specific threat variants (e.g. Zeus, Shade, Conti) targeted during binary payload analysis.
+            """)
     else:
         st.warning("Malware memory dataset is missing.")
+
+# ----------------- Tab 6: Threat Relationship Network (Task 4.7) -----------------
+with tab_network:
+    st.header("Threat Actor & Sector Relationship Network")
+    st.markdown("""
+    This topological network represents relationships between **Threat Actors**, **Source Nations**, and **Targeted Industry Sectors**.
+    It illustrates how national state-sponsored groups prioritize specific corporate and infrastructure targets.
+    """)
+
+    if not threats_df.empty:
+        fig_net = render_threat_network(threats_df)
+        st.plotly_chart(fig_net, use_container_width=True)
+        
+        with st.expander("💡 Network Topology Insights"):
+            st.markdown("""
+            *   **Node Colors:** **Cyan nodes** represent source nations/threat groups, **magenta nodes** represent industry targets, and **yellow nodes** represent attack tactics.
+            *   **Edge Thickness:** Thicker connections indicate a higher volume of recorded attacks linking that actor/nation to that targeted sector.
+            *   **Defensive Strategy:** Highly connected nodes represent critical hubs where joint security monitoring and perimeter firewalls should be prioritized.
+            """)
+    else:
+        st.warning("Global threats dataset is missing to build network graph.")
