@@ -335,7 +335,8 @@ with tab_map:
                 color_continuous_scale=px.colors.sequential.Sunsetdark,
                 labels={"risk_score": "Risk Score", "country": "Country"}
             )
-            fig_rank.update_layout(**PLOTLY_THEME_LAYOUT, yaxis={'categoryorder':'total ascending'}, showlegend=False, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
+            fig_rank.update_layout(**PLOTLY_THEME_LAYOUT)
+            fig_rank.update_layout(yaxis={'categoryorder':'total ascending'}, showlegend=False, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_rank, use_container_width=True)
             
         with col2:
