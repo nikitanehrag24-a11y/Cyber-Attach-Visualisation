@@ -294,18 +294,22 @@ def render_threat_network(global_threats_df: pd.DataFrame) -> go.Figure:
         )
     )
     
-    # 5. Build Figure
+    # 5. Build Figure safely without parameter collisions
+    layout_args = {
+        "title": "Interactive Threat Actor Relationship Network",
+        "showlegend": False,
+        "hovermode": "closest",
+        "margin": dict(b=20, l=5, r=5, t=40),
+        "xaxis": dict(showgrid=False, zeroline=False, showticklabels=False),
+        "yaxis": dict(showgrid=False, zeroline=False, showticklabels=False),
+        "height": 550
+    }
+    for k, v in PLOTLY_THEME_LAYOUT.items():
+        if k not in ["xaxis", "yaxis"]:
+            layout_args[k] = v
+
     fig = go.Figure(
         data=[edge_trace, node_trace],
-        layout=go.Layout(
-            title="Interactive Threat Actor Relationship Network",
-            showlegend=False,
-            hovermode="closest",
-            margin=dict(b=20, l=5, r=5, t=40),
-            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            **PLOTLY_THEME_LAYOUT,
-            height=550
-        )
+        layout=go.Layout(**layout_args)
     )
     return fig
