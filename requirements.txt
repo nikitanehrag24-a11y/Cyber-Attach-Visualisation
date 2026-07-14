@@ -12,12 +12,12 @@ networkx>=3.3
 streamlit>=1.36
 
 # --- Geospatial (optional module) ---
-geopandas>=0.14
-pycountry>=23.12
+# geopandas>=0.14
+# pycountry>=23.12
 
 # --- ML (optional prediction module) ---
-scikit-learn>=1.5
-prophet>=1.1
+# scikit-learn>=1.5
+# prophet>=1.1
 
 # --- Data acquisition ---
 kaggle>=1.6
