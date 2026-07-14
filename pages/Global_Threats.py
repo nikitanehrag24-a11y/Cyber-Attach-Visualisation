@@ -81,3 +81,8 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
         """,
         unsafe_allow_html=True
     )
+
+    # 4. Reference Report Plot
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("Show Static Reference Report Plot"):
+        st.image("images/global_trends.png", caption="Figure 4.1: Chronological cyber incident trend timeline with a 3-year regression forecast", use_container_width=True)

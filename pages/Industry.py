@@ -79,3 +79,8 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
             )
             fig_heatmap.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 40, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_heatmap, use_container_width=True)
+
+    # 4. Reference Report Plot
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("Show Static Reference Report Plot"):
+        st.image("images/industry_dashboard.png", caption="Figure 4.3: Treemap profile of financial loss by industry sector", use_container_width=True)

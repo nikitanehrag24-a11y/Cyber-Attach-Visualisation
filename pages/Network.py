@@ -46,3 +46,8 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
         """,
         unsafe_allow_html=True
     )
+
+    # 3. Reference Report Plot
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("Show Static Reference Report Plot"):
+        st.image("images/threat_network.png", caption="Figure 4.7: Threat actor relationship network mapping connections between threat vectors and sectors", use_container_width=True)
