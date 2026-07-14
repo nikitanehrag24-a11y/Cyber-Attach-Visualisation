@@ -10,8 +10,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIR))
 
-# Import main orchestrator from the root main_app.py
-from main_app import main
+# Import main orchestrator from the root app.py
+from app import main
 
 if __name__ == "__main__":
     main()
