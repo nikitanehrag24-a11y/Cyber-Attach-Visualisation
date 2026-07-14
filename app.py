@@ -104,10 +104,7 @@ def main():
         filters["severities"]
     )
     
-    filtered_malmem = filter_malmem(
-        malmem,
-        filters["search_query"]
-    )
+    filtered_malmem = malmem
     
     # Pack filtered dataframes into a payload dict
     filtered_data = {
