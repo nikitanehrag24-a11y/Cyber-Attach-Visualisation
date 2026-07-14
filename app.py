@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 # Add project root to python path
-sys.path.append(str(Path(__file__).resolve()))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from frontend.layout import set_page_theme, inject_custom_css
 from frontend.sidebar import render_sidebar
