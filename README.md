@@ -67,20 +67,5 @@ This is the worked example. Copy the same pattern for the other 4 datasets
 (clean_cfr_incidents.py, clean_vulnerabilities.py, clean_attack_signatures.py,
 clean_malmem.py), all living in `src/preprocessing/`.
 
-## Git workflow
-
-- `main` — stable, always runnable
-- `dev` — integration branch
-- feature branches: `feature/<your-name>-<short-description>`, e.g.
-  `feature/pranjali-clean-global-threats`
-
-```bash
-git checkout -b feature/pranjali-clean-global-threats
-# ... work, commit ...
-git push origin feature/pranjali-clean-global-threats
-# open a PR into dev
-```
-
-Commit message convention: `[preprocessing] short description`,
-`[eda] short description`, `[viz] short description`, etc. — makes it easy
-to scan `git log` by domain later.
+## Streamlit App Link
+https://cyber-attach-visualisation-dawavmaacerhnvodttg9rb.streamlit.app/

@@ -19,32 +19,31 @@ DATASETS = {
     "global_threats": {
         "description": "Global Cybersecurity Threats (2015-2024)",
         "kaggle_slug": "atharvasoundankar/global-cybersecurity-threats-2015-2024",
-        "raw_filename": "global_cybersecurity_threats.csv",
+        "raw_filename": "Global_Cybersecurity_Threats_2015-2024.csv",
         "source": "kaggle",
     },
     "cfr_incidents": {
         "description": "Cyber Incidents 2005-2020 (Council on Foreign Relations)",
-        "kaggle_slug": None,  # TODO: search Kaggle and paste the "owner/dataset-name" slug here
-        "raw_filename": "cfr_cyber_incidents.csv",
+        "kaggle_slug": "fireballbyedimyrnmom/cyber-incidents-up-to-2020",
+        "raw_filename": "cyber-operations-incidents.csv",
         "source": "kaggle",
     },
     "vulnerabilities": {
         "description": "Security Vulnerabilities Dataset",
-        "kaggle_slug": None,  # TODO: search Kaggle and paste the "owner/dataset-name" slug here
+        "kaggle_slug": "ighoshsubho/security-vulnerabilities-dataset",
         "raw_filename": "security_vulnerabilities.csv",
         "source": "kaggle",
     },
     "attack_signatures": {
         "description": "Cyber Security Attacks (~40k records, 25 metrics)",
-        "kaggle_slug": None,  # TODO: search Kaggle and paste the "owner/dataset-name" slug here
-        "raw_filename": "cyber_security_attacks.csv",
+        "kaggle_slug": "teamincribo/cyber-security-attacks",
+        "raw_filename": "cybersecurity_attacks.csv",
         "source": "kaggle",
     },
     "malmem_2022": {
         "description": "CIC-MalMem-2022 malware memory dataset",
-        "kaggle_slug": None,
-        "raw_filename": "cic_malmem_2022.csv",
-        "source": "manual",
-        "manual_url": "https://www.unb.ca/cic/datasets/malmem-2022.html",
+        "kaggle_slug": "samuelsheehy/cicmalmem2022",
+        "raw_filename": "Obfuscated-MalMem2022.csv",
+        "source": "kaggle",
     },
 }

@@ -47,7 +47,7 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
         df = standardize_year_column(df, "year")
 
     categorical_cols = [c for c in ["country", "attack_type", "target_industry",
-                                     "attack_source", "vulnerability_type",
+                                     "attack_source", "security_vulnerability_type",
                                      "defense_mechanism_used"] if c in df.columns]
     df = standardize_categorical(df, categorical_cols)
 
