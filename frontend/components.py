@@ -24,12 +24,13 @@ def load_world_geojson():
     except Exception:
         return None
 
-def card_kpi(label: str, value: str, icon: str = "⚡"):
+def card_kpi(label: str, value: str, icon: str = ""):
     """Renders a single glassmorphic card with a KPI metric."""
+    icon_str = f"{icon} " if icon else ""
     st.markdown(
         f"""
         <div class="metric-card">
-            <div class="metric-label">{icon} {label}</div>
+            <div class="metric-label">{icon_str}{label}</div>
             <div class="metric-value">{value}</div>
         </div>
         """,

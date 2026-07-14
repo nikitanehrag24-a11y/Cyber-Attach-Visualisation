@@ -162,13 +162,13 @@ def main():
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        card_kpi("Total Global Incidents", f"{kpis['total_attacks']:,}", icon="🚨")
+        card_kpi("Total Global Incidents", f"{kpis['total_attacks']:,}", icon="")
     with col2:
-        card_kpi("Estimated Loss in USD", f"${kpis['total_loss_million']:,.1f}M", icon="💰")
+        card_kpi("Estimated Loss in USD", f"${kpis['total_loss_million']:,.1f}M", icon="")
     with col3:
-        card_kpi("Average Resolution Time", f"{kpis['avg_resolution_hours']:.1f} hrs", icon="⏱️")
+        card_kpi("Average Resolution Time", f"{kpis['avg_resolution_hours']:.1f} hrs", icon="")
     with col4:
-        card_kpi("Users Impacted", f"{kpis['affected_users']:,}", icon="👥")
+        card_kpi("Users Impacted", f"{kpis['affected_users']:,}", icon="")
         
     st.markdown("<br>", unsafe_allow_html=True)
     
