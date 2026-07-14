@@ -14,7 +14,7 @@ from frontend.layout import PLOTLY_THEME_LAYOUT, COLOR_PALETTE
 
 def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
     """Renders the Industry dashboard page."""
-    st.markdown("<h1>Target Industry Analysis</h1>", unsafe_allow_html=True)
+    st.markdown("<h1>Industry Vulnerability & Risk Profiles</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p style='font-size: 1.1rem; color: #8c9ba5; margin-bottom: 30px;'>"
         "Identify which commercial and government sectors face the highest financial impacts and risk exposures."
@@ -32,10 +32,24 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
     w_freq, w_loss, w_time = filters.get("weights", (0.3, 0.4, 0.3))
     industry_risk = get_industry_risk_scores(global_df, w_freq, w_loss, w_time)
     
-    # 2. Render Treemap
-    st.subheader("Industry Financial Loss Distribution")
-    fig_tree = render_industry_treemap(global_df)
-    st.plotly_chart(fig_tree, use_container_width=True)
+    # 2. Render Treemap and Industry Severity Profile
+    col_ind1, col_ind2 = st.columns(2)
+    with col_ind1:
+        st.subheader("Financial Loss Distribution by Sector")
+        fig_tree = render_industry_treemap(global_df)
+        st.plotly_chart(fig_tree, use_container_width=True)
+    with col_ind2:
+        st.subheader("Industry Severity Profile")
+        fig_ind_bar = px.histogram(
+            global_df,
+            x="target_industry",
+            color="standard_attack_type",
+            barmode="stack",
+            labels={"target_industry": "Industry Sector", "count": "Incidents"},
+            color_discrete_sequence=[COLOR_PALETTE["primary"], COLOR_PALETTE["secondary"], COLOR_PALETTE["accent"], COLOR_PALETTE["neon_pink"]]
+        )
+        fig_ind_bar.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
+        st.plotly_chart(fig_ind_bar, use_container_width=True)
     
     with st.expander("Sector Risk & Loss Insights"):
         st.markdown(f"""
@@ -80,7 +94,4 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
             fig_heatmap.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 40, "b": 30, "l": 30, "r": 30})
             st.plotly_chart(fig_heatmap, use_container_width=True)
 
-    # 4. Reference Report Plot
-    st.markdown("<br>", unsafe_allow_html=True)
-    with st.expander("Show Static Reference Report Plot"):
-        st.image("images/industry_dashboard.png", caption="Figure 4.3: Treemap profile of financial loss by industry sector", use_container_width=True)
+

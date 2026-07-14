@@ -86,8 +86,3 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
         )
         fig_bar.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 40, "b": 30, "l": 30, "r": 30})
         st.plotly_chart(fig_bar, use_container_width=True)
-
-    # 4. Reference Report Plot
-    st.markdown("<br>", unsafe_allow_html=True)
-    with st.expander("Show Static Reference Report Plot"):
-        st.image("images/country_map.png", caption="Figure 4.2: Interactive world risk map rendered under the dynamic calibration weights", use_container_width=True)

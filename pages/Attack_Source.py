@@ -91,8 +91,3 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
         *   **Resolution Times vs Defense Controls:** The strip plot demonstrates the operational resolution hours across different defense configurations. Notice the dense clusters indicating how containment time is distributed across attack types.
         *   **Attribution share:** Nation-state groups and advanced insider threats typically represent distinct risk profiles in financial damage per security event.
         """)
-
-    # 3. Reference Report Plot
-    st.markdown("<br>", unsafe_allow_html=True)
-    with st.expander("Show Static Reference Report Plot"):
-        st.image("images/attack_source.png", caption="Figure 4.6: Resolution time (hours) by defense strategy, colored by attack vector", use_container_width=True)

@@ -13,7 +13,7 @@ from frontend.layout import COLOR_PALETTE, PLOTLY_THEME_LAYOUT
 
 def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
     """Renders the Global Threat trends page."""
-    st.markdown("<h1>Global Threat Trends</h1>", unsafe_allow_html=True)
+    st.markdown("<h1>Global Threat & Incident Evolution</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p style='font-size: 1.1rem; color: #8c9ba5; margin-bottom: 30px;'>"
         "Analyze how cyber attack volumes, frequencies, and vectors evolve over the years."
@@ -22,14 +22,28 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
     )
     
     global_df = datasets["global_threats"]
+    temporal_df = datasets["integrated_temporal"]
     
-    if global_df.empty:
+    if global_df.empty or temporal_df.empty:
         st.warning("No data matches the selected filters. Please adjust the sidebar choices.")
         return
         
-    # 1. Main Global Volume Trend
-    fig_volume = render_global_trend_chart(datasets["integrated_temporal"])
-    st.plotly_chart(fig_volume, use_container_width=True)
+    # 1. Side-by-side Trends & Economic Damage
+    col_t1, col_t2 = st.columns(2)
+    with col_t1:
+        st.subheader("Annual Cyber Incidents Trends")
+        fig_volume = render_global_trend_chart(temporal_df)
+        st.plotly_chart(fig_volume, use_container_width=True)
+    with col_t2:
+        st.subheader("Economic Damage Impact")
+        fig_loss = px.area(
+            temporal_df[temporal_df["avg_financial_loss"] > 0],
+            x="year", y="avg_financial_loss",
+            labels={"avg_financial_loss": "Average Financial Loss (Millions USD)", "year": "Year"},
+            color_discrete_sequence=['#9900FF']
+        )
+        fig_loss.update_layout(**PLOTLY_THEME_LAYOUT, height=350, margin={"t": 30, "b": 30, "l": 30, "r": 30})
+        st.plotly_chart(fig_loss, use_container_width=True)
     
     # 2. Side-by-side comparison charts
     col1, col2 = st.columns(2)
@@ -82,7 +96,4 @@ def render(datasets: Dict[str, pd.DataFrame], filters: Dict[str, Any]):
         unsafe_allow_html=True
     )
 
-    # 4. Reference Report Plot
-    st.markdown("<br>", unsafe_allow_html=True)
-    with st.expander("Show Static Reference Report Plot"):
-        st.image("images/global_trends.png", caption="Figure 4.1: Chronological cyber incident trend timeline with a 3-year regression forecast", use_container_width=True)
+
